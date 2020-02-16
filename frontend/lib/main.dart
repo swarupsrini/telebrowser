@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:sms/sms.dart';
 
@@ -24,19 +26,27 @@ class MyCustomForm extends StatefulWidget {
 class _MyCustomFormState extends State<MyCustomForm> {
   // Create a text controller and use it to retrieve the current value
   // of the TextField.
-  final String TWILIO_NUMBER = "6476974733";
+  final String TWILIO_NUMBER = "6474962175";
   final myController = TextEditingController();
+  int numberOfSms = 0;
+  Queue<String> messages;
 
-
-  void sendToSms(String url_message) {
+  void sendToSms(String url_message) async {
     SmsSender sender = new SmsSender();
     String address = TWILIO_NUMBER;
     sender.sendSms(new SmsMessage(address, url_message));
-  }
-  
-  void receiveSMS() {
+
     SmsReceiver receiver = new SmsReceiver();
     receiver.onSmsReceived.listen((SmsMessage msg) => print(msg.body));
+  }
+
+  void getNumbeOfSms(String message) {
+    this.numberOfSms = int.parse(message.substring(38, message.length));
+  }
+
+  void appendQueue(String message) {
+
+    this.numberOfSms--;
   }
 
   @override
@@ -65,13 +75,6 @@ class _MyCustomFormState extends State<MyCustomForm> {
             sendToSms(myController.text);
           }
       ),
-      persistentFooterButtons: <Widget>[FlatButton(
-            child: Icon(Icons.add_alarm),
-            onPressed: (){
-              receiveSMS();
-            }      
-          )
-      ],
     );
   }
 }
