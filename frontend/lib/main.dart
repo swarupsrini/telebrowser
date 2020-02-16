@@ -33,7 +33,11 @@ class _MyCustomFormState extends State<MyCustomForm> {
     String address = TWILIO_NUMBER;
     sender.sendSms(new SmsMessage(address, url_message));
   }
-    
+  
+  void receiveSMS() {
+    SmsReceiver receiver = new SmsReceiver();
+    receiver.onSmsReceived.listen((SmsMessage msg) => print(msg.body));
+  }
 
   @override
   void dispose() {
@@ -55,24 +59,19 @@ class _MyCustomFormState extends State<MyCustomForm> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        // When the user presses the button, show an alert dialog containing
-        // the text that the user has entered into the text field.
-        onPressed: () {
-          sendToSms(myController.text);
-          // return showDialog(
-          //   context: context,
-          //   builder: (context) {
-          //     return AlertDialog(
-          //       // Retrieve the text the that user has entered by using the
-          //       // TextEditingController.
-          //       content: Text(myController.text),
-          //     );
-          //   },
-          // );
-        },
-        tooltip: 'Show me the value!',
-        child: Icon(Icons.text_fields),
+          elevation: 10.0,
+          child: Icon(Icons.wifi_lock),
+          onPressed: (){
+            sendToSms(myController.text);
+          }
       ),
+      persistentFooterButtons: <Widget>[FlatButton(
+            child: Icon(Icons.add_alarm),
+            onPressed: (){
+              receiveSMS();
+            }      
+          )
+      ],
     );
   }
 }
