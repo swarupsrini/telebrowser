@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sms/sms.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 void main() => runApp(MyApp());
 
@@ -28,7 +29,7 @@ class MyCustomForm extends StatefulWidget {
 class _MyCustomFormState extends State<MyCustomForm> {
   // Create a text controller and use it to retrieve the current value
   // of the TextField.
-  final String TWILIO_NUMBER = "6479311893";
+  final String TWILIO_NUMBER = "6475593038";
   final myController = TextEditingController();
   WebViewController _controller;
   
@@ -110,6 +111,12 @@ class _MyCustomFormState extends State<MyCustomForm> {
           this._controller = webViewController;
         },
       ),
+      // body: WebView(
+      //   initialUrl: 'https://flutter.io',
+      //   onWebViewCreated: (WebViewController webViewController) {
+      //     this._controller = webViewController;
+      //   },
+      // ),
       floatingActionButton: FloatingActionButton(
           elevation: 10.0,
           child: Icon(Icons.wifi_lock),
@@ -117,13 +124,12 @@ class _MyCustomFormState extends State<MyCustomForm> {
             sendToSms(myController.text);
           }
       ),
-      persistentFooterButtons: <Widget>[FlatButton(
-          child: Icon(Icons.add_alarm),
-          onPressed: (){
-            demo();
-          }      
+      bottomNavigationBar: new LinearPercentIndicator(
+          width: 100.0,
+          lineHeight: 8.0,
+          percent: 0.9,
+          progressColor: Colors.blue, 
         )
-      ],
     );
   }
 }

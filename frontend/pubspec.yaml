@@ -24,7 +24,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   sms: ^0.2.0
   webview_flutter: ^0.3.19+7
-
+  percent_indicator: "^2.1.1"
 dev_dependencies:
   flutter_test:
     sdk: flutter
