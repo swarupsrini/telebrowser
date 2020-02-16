@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sms/sms.dart';
@@ -53,30 +54,35 @@ class _MyCustomFormState extends State<MyCustomForm> {
     if (this.numberOfSms == 0){
       print("NUMBERS: " + (this.numberOfSms).toString());
       this.numberOfSms = int.parse(message.substring(38, message.length));
+      this.messages.length = this.numberOfSms;
       print("NUMBERS: " + (this.numberOfSms).toString());
     }
     else {
       print("APPENDING: ");
       print(message.substring(38, message.length));
-      this.messages.add(message.substring(38, message.length));
+      // this.messages.add(message.substring(38, message.length));
       String temp = message.substring(38, message.length); 
-      this.messages.insert(int.parse(temp.substring(0, temp.indexOf(" ")+1)), temp.substring(temp.indexOf(" ")+1));
+      this.messages.insert(int.parse(temp.substring(0, temp.indexOf(" "))), temp.substring(temp.indexOf(" ")+1));
       print(messages.toString());
       this.numberOfSms--;
       if(this.numberOfSms == 0) {
         print(this.messages.join());
         this.htmlText = this.messages.join();
+        print(this.htmlText);
         print("Making the Webview");
-        _controller.loadUrl( Uri.dataFromString(
+        this._controller.loadUrl( Uri.dataFromString(
           this.htmlText,
           mimeType: 'text/html',
+          encoding: Encoding.getByName('utf-8')
         ).toString());
       }
       print((this.numberOfSms).toString());
     }
   }
 
-
+  void demo() {
+    this._controller.loadUrl("https://google.com");
+  }
 
   @override
   void dispose() {
@@ -99,7 +105,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
         ),
       ),
       body: WebView(
-        initialUrl: "",
+        initialUrl: 'https://flutter.io',
         onWebViewCreated: (WebViewController webViewController) {
           this._controller = webViewController;
         },
@@ -114,6 +120,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
       persistentFooterButtons: <Widget>[FlatButton(
           child: Icon(Icons.add_alarm),
           onPressed: (){
+            demo();
           }      
         )
       ],
