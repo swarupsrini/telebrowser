@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'dart:collection';
-
+import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sms/sms.dart';
 
@@ -26,28 +27,56 @@ class MyCustomForm extends StatefulWidget {
 class _MyCustomFormState extends State<MyCustomForm> {
   // Create a text controller and use it to retrieve the current value
   // of the TextField.
-  final String TWILIO_NUMBER = "6474962175";
+  final String TWILIO_NUMBER = "6479311893";
   final myController = TextEditingController();
+  WebViewController _controller;
+  
   int numberOfSms = 0;
-  Queue<String> messages;
+  List<String> messages = new List<String>();
+  String htmlText = "";
 
-  void sendToSms(String url_message) async {
+  void sendToSms(String url_message) {
+    print((this.numberOfSms).toString());
     SmsSender sender = new SmsSender();
     String address = TWILIO_NUMBER;
     sender.sendSms(new SmsMessage(address, url_message));
-
     SmsReceiver receiver = new SmsReceiver();
-    receiver.onSmsReceived.listen((SmsMessage msg) => print(msg.body));
+    receiver.onSmsReceived.listen((SmsMessage msg) => this.handleSms(msg.body));
+    // if(this.numberOfSms == 0) {
+    //   receiver.onSmsReceived.listen((SmsMessage msg) => this.getNumbeOfSms(msg.body));
+    // } else {
+    //   receiver.onSmsReceived.listen((SmsMessage msg) => this.appendQueue(msg.body));
+    // }
   }
 
-  void getNumbeOfSms(String message) {
-    this.numberOfSms = int.parse(message.substring(38, message.length));
+  void handleSms(String message) {
+    if (this.numberOfSms == 0){
+      print("NUMBERS: " + (this.numberOfSms).toString());
+      this.numberOfSms = int.parse(message.substring(38, message.length));
+      print("NUMBERS: " + (this.numberOfSms).toString());
+    }
+    else {
+      print("APPENDING: ");
+      print(message.substring(38, message.length));
+      this.messages.add(message.substring(38, message.length));
+      String temp = message.substring(38, message.length); 
+      this.messages.insert(int.parse(temp.substring(0, temp.indexOf(" ")+1)), temp.substring(temp.indexOf(" ")+1));
+      print(messages.toString());
+      this.numberOfSms--;
+      if(this.numberOfSms == 0) {
+        print(this.messages.join());
+        this.htmlText = this.messages.join();
+        print("Making the Webview");
+        _controller.loadUrl( Uri.dataFromString(
+          this.htmlText,
+          mimeType: 'text/html',
+        ).toString());
+      }
+      print((this.numberOfSms).toString());
+    }
   }
 
-  void appendQueue(String message) {
 
-    this.numberOfSms--;
-  }
 
   @override
   void dispose() {
@@ -60,13 +89,20 @@ class _MyCustomFormState extends State<MyCustomForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Type in a URL without Internet'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: TextField(
+        title: TextField(
+          cursorColor: Color(0xFFFFFFFF),
+          style: TextStyle(
+            fontFamily: "raleway",
+            color : Color(0xFFFFFFFF), 
+          ),
           controller: myController,
         ),
+      ),
+      body: WebView(
+        initialUrl: "",
+        onWebViewCreated: (WebViewController webViewController) {
+          this._controller = webViewController;
+        },
       ),
       floatingActionButton: FloatingActionButton(
           elevation: 10.0,
@@ -75,6 +111,12 @@ class _MyCustomFormState extends State<MyCustomForm> {
             sendToSms(myController.text);
           }
       ),
+      persistentFooterButtons: <Widget>[FlatButton(
+          child: Icon(Icons.add_alarm),
+          onPressed: (){
+          }      
+        )
+      ],
     );
   }
 }
