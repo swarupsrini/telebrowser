@@ -9,13 +9,13 @@ import requests, time
 app = Flask(__name__)
 run_with_ngrok(app)
 
-number = "+16479311893"
+number = "+16475593038"
 
 cleaner = Cleaner()
 cleaner.javascript = True
 cleaner.style = True
 
-with open("twilio_settings.txt", "r") as file:
+with open("backend/twilio_settings.txt", "r") as file:
     account_sid, auth_token = file.read().splitlines()
 client = Client(account_sid, auth_token)
 
