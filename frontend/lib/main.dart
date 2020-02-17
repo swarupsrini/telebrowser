@@ -5,9 +5,11 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:sms/sms.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:progress_hud/progress_hud.dart';
 
 void main() => runApp(MyApp());
 
+double PERCENT;
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -17,6 +19,9 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
+
 
 // Define a custom Form widget.
 class MyCustomForm extends StatefulWidget {
@@ -29,13 +34,37 @@ class MyCustomForm extends StatefulWidget {
 class _MyCustomFormState extends State<MyCustomForm> {
   // Create a text controller and use it to retrieve the current value
   // of the TextField.
-  final String TWILIO_NUMBER = "6475593038";
+  final String TWILIO_NUMBER = "6474928606";
   final myController = TextEditingController();
+  bool _loading = false;
   WebViewController _controller;
-  
+  ProgressHUD _progressHUD;
+
+
+  @override
+  void initState() {
+    super.initState();
+    print("DOING:");
+    _progressHUD = new ProgressHUD(
+      backgroundColor: Colors.black12,
+      color: Colors.white,
+      containerColor: Colors.blue,
+      borderRadius: 5.0,
+      text: 'Loading...',
+    );
+  }
+
+
+
+  // @Override
+  // _LinearPercentIndicatorState createState() => _LinearPercentIndicatorState();
+
   int numberOfSms = 0;
   List<String> messages = new List<String>();
   String htmlText = "";
+  int total = 0;
+  double percent = 0;
+  int tempNum = 0;
 
   void sendToSms(String url_message) {
     print((this.numberOfSms).toString());
@@ -53,8 +82,11 @@ class _MyCustomFormState extends State<MyCustomForm> {
 
   void handleSms(String message) {
     if (this.numberOfSms == 0){
+      this._loading = false;
+      this.messages.clear();
       print("NUMBERS: " + (this.numberOfSms).toString());
       this.numberOfSms = int.parse(message.substring(38, message.length));
+      this.total = int.parse(message.substring(38, message.length));
       this.messages.length = this.numberOfSms;
       print("NUMBERS: " + (this.numberOfSms).toString());
     }
@@ -65,8 +97,12 @@ class _MyCustomFormState extends State<MyCustomForm> {
       String temp = message.substring(38, message.length); 
       this.messages.insert(int.parse(temp.substring(0, temp.indexOf(" "))), temp.substring(temp.indexOf(" ")+1));
       print(messages.toString());
+      this.tempNum++;
       this.numberOfSms--;
+      PERCENT = this.tempNum/this.total;
+      print(this.percent.toString());
       if(this.numberOfSms == 0) {
+        this._loading = true;
         print(this.messages.join());
         this.htmlText = this.messages.join();
         print(this.htmlText);
@@ -81,9 +117,6 @@ class _MyCustomFormState extends State<MyCustomForm> {
     }
   }
 
-  void demo() {
-    this._controller.loadUrl("https://google.com");
-  }
 
   @override
   void dispose() {
@@ -91,9 +124,23 @@ class _MyCustomFormState extends State<MyCustomForm> {
     myController.dispose();
     super.dispose();
   }
+  void demo() {
+    this.percent = 0.5;
+  }
 
   @override
   Widget build(BuildContext context) {
+    void dismissProgressHUD() {
+      setState(() {
+        if (this._loading) {
+          _progressHUD.state.dismiss();
+        } else {
+          _progressHUD.state.show();
+        }
+
+        _loading = !_loading;
+      });
+    }
     return Scaffold(
       appBar: AppBar(
         title: TextField(
@@ -106,7 +153,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
         ),
       ),
       body: WebView(
-        initialUrl: 'https://flutter.io',
+        initialUrl: '',
         onWebViewCreated: (WebViewController webViewController) {
           this._controller = webViewController;
         },
@@ -120,16 +167,19 @@ class _MyCustomFormState extends State<MyCustomForm> {
       floatingActionButton: FloatingActionButton(
           elevation: 10.0,
           child: Icon(Icons.wifi_lock),
-          onPressed: (){
+          onPressed: () {
+            //dismissProgressHUD();
             sendToSms(myController.text);
+            // dismissProgressHUD()
           }
       ),
-      bottomNavigationBar: new LinearPercentIndicator(
-          width: 100.0,
-          lineHeight: 8.0,
-          percent: 0.9,
-          progressColor: Colors.blue, 
-        )
+
+      // bottomNavigationBar: new LinearPercentIndicator(
+      //     width: 410.0,
+      //     lineHeight: 8.0,
+      //     percent: this.percent,
+      //     progressColor: Colors.blue, 
+      //   )
     );
   }
 }
