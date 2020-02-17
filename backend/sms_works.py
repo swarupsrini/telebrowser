@@ -9,19 +9,20 @@ import requests, time
 app = Flask(__name__)
 run_with_ngrok(app)
 
-number = "+16475593038"
+number = "+16474928606"
 
 cleaner = Cleaner()
 cleaner.javascript = True
 cleaner.style = True
 
-with open("backend/twilio_settings.txt", "r") as file:
+with open("twilio_settings.txt", "r") as file:
     account_sid, auth_token = file.read().splitlines()
 client = Client(account_sid, auth_token)
 
 @app.route("/sms", methods=['GET', 'POST'])
 def sms_ahoy_reply():
     url = request.form["Body"]
+    print("AUTH:", account_sid, auth_token)
     # resp = lxml.html.tostring(cleaner.clean_html(lxml.html.parse(url))).decode("utf-8")
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.106 Safari/537.36"}
     # resp = lxml.html.tostring(cleaner.clean_html(requests.get(url, headers=headers).text)).decode("utf-8")
